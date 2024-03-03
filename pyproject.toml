@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project.urls]
+repository = "https://github.com/epicosy/safednn"
+homepage = "https://github.com/epicosy/safednn"
+
+[project]
+name="safednn"
+version = "0.0.1"
+description = "A framework for evaluating tools that reason about the trustworthiness of the DNN's predictions."
+readme = "README.md"
+authors = [
+    {name = "Eduard Pinconschi", email="eduard.pinconschi@tecnico.ulisboa.pt"},
+]
+keywords = ["machine learning", "trustworthiness", "framework"]
+license = {file = "LICENSE.txt"}
+requires-python = ">=3.9"
+classifiers = [
+    "Topic :: Software Development",
+    "Programming Language :: Python",
+    "Environment :: Console",
+    "Intended Audience :: Developers"
+]
+dependencies = [
+    "cement==3.0.10",
+    "jinja2",
+    "colorlog",
+    "pyyaml~=6.0.1",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-cov",
+    "coverage",
+    "twine>=1.11.0",
+    "setuptools>=38.6.0",
+    "wheel>=0.31.0"
+]
+
+
+[tool.setuptools.packages.find]
+exclude = ["ez_setup", "tests*"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+safednn = ["templates/*", "config/*"]
+
+[project.scripts]
+safednn = "safednn.main:main"
