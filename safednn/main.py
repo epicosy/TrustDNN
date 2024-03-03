@@ -1,8 +1,11 @@
 
 from cement import App, TestApp, init_defaults
-from cement.core.exc import CaughtSignal
+from cement.core.exc import CaughtSignal, InterfaceError
 from .core.exc import SafeDNNError
 from .controllers.base import Base
+
+from safednn.handlers.plugin import PluginsInterface, PluginHandler
+
 
 # configuration defaults
 CONFIG = init_defaults('safednn')
@@ -40,10 +43,55 @@ class SafeDNN(App):
         # set the output handler
         output_handler = 'jinja2'
 
+        interfaces = [
+            PluginsInterface
+        ]
+
         # register handlers
         handlers = [
             Base
         ]
+
+    def get_plugin_handler(self, name: str, kind: type = None):
+        """
+            Gets the handler associated to the plugin
+
+            :param name: label of the plugin
+            :param kind: type of the plugin
+            :return: handler for the plugin
+        """
+
+        try:
+
+            if name not in self.plugin.get_loaded_plugins():
+                try:
+                    if self.plugin.load_plugin(name):
+                        self.log.info(f'Loaded plugin {name}')
+                except ModuleNotFoundError as mnf:
+                    self.log.error(f'Plugin {name} not found')
+                    exit(1)
+
+            plugin = self.handler.resolve('plugins', name)
+
+            if kind is not None:
+                if not isinstance(plugin, kind):
+                    raise TypeError(f'Plugin {name} is not of type {kind.__name__}')
+
+            plugin.__init__()
+            plugin._setup(self)
+            self.log.info(f'Initialized plugin {name}')
+
+            return plugin
+
+        except InterfaceError as ie:
+            self.log.error(str(ie))
+            exit(1)
+        except TypeError as te:
+            self.log.error(str(te))
+            exit(1)
+        except KeyError as ke:
+            self.log.error(f"Could not resolve plugin {name}")
+            exit(1)
 
 
 class SafeDNNTest(TestApp,SafeDNN):
