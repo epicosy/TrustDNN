@@ -1,42 +1,51 @@
 from pathlib import Path
-from safednn.core.split.base import Split, Train, Val, Test
+from safednn.core.split.base import Split, SPLIT_NAMES
+
+from safednn.core.split.csv import CSVSplit
+from safednn.core.split.npy import NPYSplit
 
 
-matches = {
-    'train': Train,
-    'val': Val,
-    'test': Test
-}
+SPLIT_FORMATS = {'csv': CSVSplit, 'npy': NPYSplit}
 
 
-def load(path: Path) -> Split:
-    if path.name not in matches:
-        raise ValueError(f"Invalid split directory: {path}")
+class SplitFactory:
+    @staticmethod
+    def read_split(path: Path, headers: bool = True) -> Split:
+        if path.name not in SPLIT_NAMES:
+            raise ValueError(f"Invalid split directory: {path}")
 
-    args = {'_path': path}
-    accepted_suffixes = ['csv', 'npy']
-    suffixes = []
+        args = {'path': path, 'name': path.name, 'headers': headers}
+        suffixes = []
 
-    for file in path.iterdir():
-        if file.suffix.replace('.', '') not in accepted_suffixes:
-            continue
+        has_features_file = False
+        has_labels_file = False
 
-        if file.stem == 'x':
-            args['_features_file'] = file.name
-        elif file.stem == 'y':
-            args['_labels_file'] = file.name
+        for file in path.iterdir():
+            suffix = file.suffix.replace('.', '')
 
-        suffixes.append(file.suffix.replace('.', ''))
+            if suffix not in SPLIT_FORMATS:
+                continue
 
-    if '_features_file' not in args:
-        raise ValueError(f"Features file not found in {path}")
+            suffixes.append(suffix)
 
-    if '_labels_file' not in args:
-        raise ValueError(f"Labels file not found in {path}")
+            if file.stem == 'x':
+                has_features_file = True
+            elif file.stem == 'y':
+                has_labels_file = True
 
-    if len(set(suffixes)) != 1:
-        raise ValueError(f"All splits must have the same file format.")
+        if not has_features_file:
+            raise ValueError(f"Features file not found in {path}")
 
-    # TODO: define split format
+        if not has_labels_file:
+            raise ValueError(f"Labels file not found in {path}")
 
-    return matches[path.name](**args)
+        formats = set(suffixes)
+
+        if len(formats) != 1:
+            raise ValueError(f"All splits must have the same file format.")
+
+        split_format = formats.pop()
+        split = SPLIT_FORMATS[split_format]
+        args['format'] = split_format
+
+        return split(**args)

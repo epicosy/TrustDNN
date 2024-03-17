@@ -1,90 +1,56 @@
-import numpy as np
-import pandas as pd
-
+from typing import Any
 from pathlib import Path
+from abc import abstractmethod
 from dataclasses import dataclass
 
+SPLIT_NAMES = ['train', 'val', 'test']
 
-# TODO: make an split interface and implement csv and npy splits
+
 @dataclass
 class Split:
     name: str
-    _features_file: str
-    _labels_file: str
-    headers: bool = True
-    _features: pd.DataFrame = None
-    _labels: np.ndarray = None
-    _path: Path = None
-    _format: str = 'csv'
+    path: Path
+    format: str
+    headers: bool
+    _features_file_name: str = 'x'
+    _labels_file_name: str = 'y'
+    _features: Any = None
+    _labels: Any = None
 
     @property
-    def path(self):
-        return self._path
-
-    @path.setter
-    def path(self, path: Path):
-        self._path = path / self.name
+    def features_file(self):
+        return f"{self._features_file_name}.{self.format}"
 
     @property
+    def labels_file(self):
+        return f"{self._labels_file_name}.{self.format}"
+
+    @property
+    def features_path(self) -> Path:
+        return self.path / self.features_file
+
+    @property
+    def labels_path(self) -> Path:
+        return self.path / self.labels_file
+
+    @property
+    @abstractmethod
     def features(self):
-        if self._features is None:
-            if self._format == 'npy':
-                self._features = np.load(str(self.path / self._features_file))
-            else:
-                self._features = pd.read_csv(str(self.path / self._features_file), delimiter=',', encoding='utf-8',
-                                             header=None if not self.headers else 'infer')
-
-        return self._features
+        pass
 
     @features.setter
     def features(self, features):
         self._features = features
 
     @property
+    @abstractmethod
     def labels(self):
-        if self._labels is None:
-            if self._format == 'npy':
-                self._labels = np.load(str(self.path / self._labels_file))
-            else:
-                self._labels = np.loadtxt(str(self.path / self._labels_file), dtype=int)
-
-        return self._labels
+        pass
 
     @labels.setter
     def labels(self, labels):
         self._labels = labels
 
+    @abstractmethod
     def save(self):
-        self.path.mkdir(parents=True, exist_ok=True)
-        if self._format == 'csv':
-            self._features.to_csv(str(self.path / self._features_file), index=False, header=self.headers)
-            np.savetxt(str(self.path / self._labels_file), self._labels, fmt='%d')
-        else:
-            np.save(str(self.path / self._features_file), self._features)
-            np.save(str(self.path / self._labels_file), self._labels)
-
-
-# TODO: move the splits below to a separate file/module
-@dataclass
-class Train(Split):
-    name: str = 'train'
-    _features_file: str = 'x.csv'
-    _labels_file: str = 'y.csv'
-    headers: bool = False
-
-
-@dataclass
-class Val(Split):
-    name: str = 'val'
-    _features_file: str = 'x.csv'
-    _labels_file: str = 'y.csv'
-    headers: bool = True
-
-
-@dataclass
-class Test(Split):
-    name: str = 'test'
-    _features_file: str = 'x.csv'
-    _labels_file: str = 'y.csv'
-    headers: bool = True
-
+        pass

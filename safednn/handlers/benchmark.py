@@ -3,7 +3,7 @@ from typing import Any, List, Union, Dict
 from pathlib import Path
 
 from safednn.handlers.plugin import PluginHandler
-from safednn.core.dataset import load as load_dataset, Dataset
+from safednn.core.dataset import Dataset
 
 
 class BenchmarkPlugin(PluginHandler):
@@ -36,7 +36,7 @@ class BenchmarkPlugin(PluginHandler):
                 if not f.is_dir():
                     continue
 
-                self._datasets[f.name] = load_dataset(f)
+                self._datasets[f.name] = Dataset(f)
 
         return self._datasets
 
