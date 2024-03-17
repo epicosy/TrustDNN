@@ -6,12 +6,9 @@ class TrustBench(BenchmarkPlugin):
         label = 'trustbench'
 
     def __init__(self, **kw):
-        super().__init__(name='trustbench', **kw)
+        super().__init__(name='trustbench', datasets_dir='~/projects/TrustBench/data', **kw)
 
     def models(self):
-        return []
-
-    def datasets(self):
         return []
 
     def get_dataset(self, name: str):
@@ -19,6 +16,9 @@ class TrustBench(BenchmarkPlugin):
 
     def get_model(self, name: str):
         return None
+
+    def help(self):
+        pass
 
 
 def load(app):
