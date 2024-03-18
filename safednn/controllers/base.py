@@ -50,4 +50,4 @@ class Base(Controller):
 
         benchmark = self.app.get_plugin_handler(self.app.pargs.benchmark, BenchmarkPlugin)
         tool = self.app.get_plugin_handler(self.app.pargs.tool, ToolPlugin)
-        print(benchmark.datasets)
+        tool.run(model=self.app.pargs.model, dataset=benchmark.datasets[self.app.pargs.dataset])
