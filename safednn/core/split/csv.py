@@ -7,17 +7,19 @@ from safednn.core.split import Split
 class CSVSplit(Split):
     format = 'csv'
 
-    def features(self):
+    @property
+    def features(self) -> pd.DataFrame:
         if self._features is None:
             self._features = pd.read_csv(self.features_path, delimiter=',', encoding='utf-8',
                                          header=None if not self.headers else 'infer')
 
         return self._features
 
-    def labels(self):
+    @property
+    def labels(self) -> pd.DataFrame:
         if self._labels is None:
-            # TODO: should be pandas dataframe
-            self._labels = np.loadtxt(self.labels_path, dtype=int)
+            self._labels = pd.read_csv(self.labels_path, delimiter=',', dtype=np.int32, encoding='utf-8',
+                                       header=None if not self.headers else 'infer')
 
         return self._labels
 

@@ -1,5 +1,8 @@
+from pathlib import Path
+
 from safednn.handlers.tool import ToolPlugin
 from safednn.core.dataset.base import Dataset
+from safednn.core.model import Model
 
 
 class Prophecy(ToolPlugin):
@@ -8,18 +11,22 @@ class Prophecy(ToolPlugin):
 
     def __init__(self, **kw):
         super().__init__('prophecy', command='prophecy.main', path='~/projects/ProphecyPlus',
-                         env_path='~/projects/ProphecyPlus/env', **kw)
+                         interpreter="python3 -m", env_path='~/projects/ProphecyPlus/env', **kw)
 
-    def run(self, model: str, dataset: Dataset, **kwargs):
-        subcommand = f"--model {model} detect -tx {dataset.test.features_path} -ty {dataset.test.labels_path}"
-        self.run_command(subcommand, interpreter="python3 -m", stdout=True)
+    def analyze_command(self, model: Model, dataset: Dataset, working_dir: Path, **kwargs):
+        command = f"-m {model.path} -wd {working_dir} analyze "
+        command += f"-tx {dataset.train.features_path} -ty {dataset.train.labels_path} "
+        command += f"-vx {dataset.val.features_path} -vy {dataset.val.labels_path}"
+        output = working_dir / 'ruleset.csv'
 
-    def get_results(self, **kwargs):
-        # TODO: to be implemented
-        pass
+        return output, command
 
-    def help(self):
-        self.run_command('--help', interpreter="python3 -m", stdout=True)
+    def infer_command(self, model: Model, dataset: Dataset, working_dir: Path, **kwargs):
+        subcommand = f"-m {model.path} -wd {working_dir} infer "
+        subcommand += f"-tx {dataset.test.features_path} -ty {dataset.test.labels_path} classifiers"
+        output = working_dir / 'predictions' / 'results_clf.csv'
+
+        return output, subcommand
 
 
 def load(app):

@@ -1,9 +1,6 @@
-from cement import Controller, ex
+from cement import Controller
 from cement.utils.version import get_version_banner
 from ..core.version import get_version
-
-from safednn.handlers.benchmark import BenchmarkPlugin
-from safednn.handlers.tool import ToolPlugin
 
 
 VERSION_BANNER = """
@@ -20,7 +17,7 @@ class Base(Controller):
         description = 'A framework for evaluating tools that reason about the trustworthiness of DNNs.'
 
         # text displayed at the bottom of --help output
-        epilog = 'Usage: safednn command1 --foo bar'
+        epilog = 'Usage: safednn command --option 1'
 
         # controller level arguments. ex: 'safednn --version'
         arguments = [
@@ -31,23 +28,3 @@ class Base(Controller):
         """Default action if no sub-command is passed."""
 
         self.app.args.print_help()
-
-    @ex(
-        help='Runs a tool on a dataset from a given benchmark',
-
-        arguments=[
-            (['-b', '--benchmark'], {'help': 'Benchmark name', 'action': 'store', 'required': True}),
-            (['-d', '--dataset'], {'help': 'Dataset name', 'action': 'store', 'required': True}),
-            (['-t', '--tool'], {'help': 'Tool name', 'action': 'store', 'required': True}),
-            (['-m', '--model'], {'help': 'Target model', 'action': 'store', 'required': True})
-        ]
-    )
-    def run(self):
-        """Example sub-command."""
-
-        self.app.log.info(f'Running tool {self.app.pargs.tool} on dataset {self.app.pargs.dataset} from benchmark '
-                          f'{self.app.pargs.benchmark}')
-
-        benchmark = self.app.get_plugin_handler(self.app.pargs.benchmark, BenchmarkPlugin)
-        tool = self.app.get_plugin_handler(self.app.pargs.tool, ToolPlugin)
-        tool.run(model=self.app.pargs.model, dataset=benchmark.datasets[self.app.pargs.dataset])

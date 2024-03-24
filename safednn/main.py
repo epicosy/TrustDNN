@@ -3,8 +3,10 @@ from cement import App, TestApp, init_defaults
 from cement.core.exc import CaughtSignal, InterfaceError
 from .core.exc import SafeDNNError
 from .controllers.base import Base
+from .controllers.execute import Execute
 
-from safednn.handlers.plugin import PluginsInterface, PluginHandler
+from safednn.core.interfaces import PluginsInterface, HandlersInterface
+from safednn.handlers.instance import InstanceHandler
 
 
 # configuration defaults
@@ -44,15 +46,15 @@ class SafeDNN(App):
         output_handler = 'jinja2'
 
         interfaces = [
-            PluginsInterface
+            PluginsInterface, HandlersInterface
         ]
 
         # register handlers
         handlers = [
-            Base
+            Base, Execute, InstanceHandler
         ]
 
-    def get_plugin_handler(self, name: str, kind: type = None):
+    def get_plugin_handler(self, name: str, kind: type = None, **kw):
         """
             Gets the handler associated to the plugin
 
@@ -77,7 +79,7 @@ class SafeDNN(App):
                 if not isinstance(plugin, kind):
                     raise TypeError(f'Plugin {name} is not of type {kind.__name__}')
 
-            plugin.__init__()
+            plugin.__init__(**kw)
             plugin._setup(self)
             self.log.info(f'Initialized plugin {name}')
 

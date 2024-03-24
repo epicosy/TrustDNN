@@ -1,15 +1,5 @@
-from cement import Handler, Interface
-
-
-class PluginsInterface(Interface):
-    """
-        Handlers' Interface
-    """
-    class Meta:
-        """
-            Meta class
-        """
-        interface = 'plugins'
+from cement import Handler
+from safednn.core.interfaces import PluginsInterface
 
 
 class PluginHandler(PluginsInterface, Handler):
