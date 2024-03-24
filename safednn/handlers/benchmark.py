@@ -74,23 +74,21 @@ class BenchmarkPlugin(PluginHandler):
 
         return self._models
 
-    @abstractmethod
     def get_model(self, name: str) -> Any:
         """
             Get a model by name
         :param name:
         :return:
         """
-        pass
+        return self.models.get(name, None)
 
-    @abstractmethod
     def get_dataset(self, name: str) -> Any:
         """
             Get a dataset by name
         :param name:
         :return:
         """
-        pass
+        return self.datasets.get(name, None)
 
     @abstractmethod
     def help(self):

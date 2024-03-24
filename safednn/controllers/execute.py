@@ -103,12 +103,12 @@ class Execute(Controller):
         self._tool_working_dir.mkdir(parents=True, exist_ok=True)
 
     def _post_argument_parsing(self):
-        print(self.app.pargs)
-        self._parse_working_dirs()
+        if self.app.pargs.__controller_namespace__ == self.Meta.label:
+            self._parse_working_dirs()
 
-        self._tool = self.app.get_plugin_handler(name=self.app.pargs.tool, kind=ToolPlugin)
-        self._benchmark = self.app.get_plugin_handler(name=self.app.pargs.benchmark, kind=BenchmarkPlugin)
-        self._init_instances()
+            self._tool = self.app.get_plugin_handler(name=self.app.pargs.tool, kind=ToolPlugin)
+            self._benchmark = self.app.get_plugin_handler(name=self.app.pargs.benchmark, kind=BenchmarkPlugin)
+            self._init_instances()
 
     @property
     def working_dir(self):
@@ -130,6 +130,7 @@ class Execute(Controller):
 
         execution = execution.to_dict()
         execution['tool'] = self.app.pargs.tool
+        execution['benchmark'] = self.app.pargs.benchmark
         execution['dataset'] = instance.dataset.name
         execution['model'] = instance.model.name
         execution['phase'] = instance.phase
@@ -165,7 +166,6 @@ class Execute(Controller):
         help='Runs a tool on a dataset from a given benchmark'
     )
     def infer(self):
-        """Example sub-command."""
         instance_handler = self.app.handler.get('handlers', 'instance', setup=True)
 
         for instance in self.instances:

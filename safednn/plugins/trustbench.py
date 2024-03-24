@@ -11,12 +11,6 @@ class TrustBench(BenchmarkPlugin):
                          models_dir='~/projects/TrustBench/models',
                          predictions_dir='~/projects/TrustBench/predictions', **kw)
 
-    def get_dataset(self, name: str):
-        return None
-
-    def get_model(self, name: str):
-        return None
-
     def help(self):
         pass
 

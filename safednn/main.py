@@ -4,6 +4,8 @@ from cement.core.exc import CaughtSignal, InterfaceError
 from .core.exc import SafeDNNError
 from .controllers.base import Base
 from .controllers.execute import Execute
+from .controllers.evaluate import Evaluate
+
 
 from safednn.core.interfaces import PluginsInterface, HandlersInterface
 from safednn.handlers.instance import InstanceHandler
@@ -51,7 +53,7 @@ class SafeDNN(App):
 
         # register handlers
         handlers = [
-            Base, Execute, InstanceHandler
+            Base, Execute, Evaluate, InstanceHandler
         ]
 
     def get_plugin_handler(self, name: str, kind: type = None, **kw):
