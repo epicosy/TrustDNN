@@ -4,6 +4,7 @@ from pathlib import Path
 from cement import Controller, ex
 from safednn.core.evaluation import Evaluation
 from safednn.handlers.benchmark import BenchmarkPlugin
+from safednn.handlers.tool import ToolPlugin
 from safednn.core.exc import SafeDNNError
 
 
@@ -28,6 +29,14 @@ class Evaluate(Controller):
         super().__init__(**kw)
         self._working_dir = None
         self._benchmarks = None
+        self._tools = None
+
+    @property
+    def tools(self):
+        if self._tools is None:
+            self._tools = {}
+
+        return self._tools
 
     @property
     def benchmarks(self):
@@ -41,6 +50,17 @@ class Evaluate(Controller):
             self.benchmarks[name] = self.app.get_plugin_handler(name=name, kind=BenchmarkPlugin)
 
         return self.benchmarks[name]
+
+    def get_tool(self, name: str):
+        if name not in self.tools:
+            self.tools[name] = self.app.get_plugin_handler(name=name, kind=ToolPlugin)
+
+        return self.tools[name]
+
+    def get_notifications(self, tool_name: str, output_path: Path):
+        tool = self.get_tool(tool_name)
+
+        return tool.get_notifications(output_path)
 
     def get_test_labels(self, dataset_name: str, benchmark_name: str):
         benchmark = self.get_benchmark(benchmark_name)
@@ -136,7 +156,8 @@ class Evaluate(Controller):
             tool, model = tool_model
 
             for i, row in rows.iterrows():
-                notifications = pd.read_csv(row['output'])
+                # TODO: add run number otherwise it will overwrite the same experiments
+                notifications = self.get_notifications(tool, row['output'])
                 labels = self.get_test_labels(row['dataset'], row['benchmark'])
                 predictions = self.get_predictions(model, row['benchmark'])
                 evaluation = Evaluation(notifications=notifications, labels=labels, predictions=predictions)

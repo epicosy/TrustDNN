@@ -4,6 +4,9 @@ import platform
 from typing import Tuple
 from pathlib import Path
 from abc import abstractmethod
+
+import pandas as pd
+
 from safednn.handlers.plugin import PluginHandler
 from safednn.core.dataset.base import Dataset
 from safednn.core.model import Model
@@ -58,6 +61,16 @@ class ToolPlugin(PluginHandler):
         :param working_dir: working directory
         :param kwargs:
         :return: output path and command
+        """
+        pass
+
+    @abstractmethod
+    def get_notifications(self, output: Path, **kwargs) -> pd.DataFrame:
+        """
+            Get notifications
+        :param output: output path
+        :param kwargs:
+        :return: returns DataFrame with notification column
         """
         pass
 

@@ -26,21 +26,24 @@ def get_outcome(outcome, true_label, pred_label, invert: bool = False) -> str:
 class Evaluation:
     def __init__(self, notifications: pd.DataFrame, labels: pd.DataFrame, predictions: pd.DataFrame,
                  invert: bool = False):
-        notification_counts = notifications['outcome'].value_counts()
+
+        notification_counts = notifications['notification'].value_counts()
+        # transform notifications to lowercase
+        notifications['notification'] = notifications['notification'].apply(lambda x: x.lower())
 
         self.correct = notification_counts.get('correct', 0)
         self.incorrect = notification_counts.get('incorrect', 0)
         self.uncertain = notification_counts.get('uncertain', 0)
 
         # transform all uncertain notifications to incorrect
-        notifications['outcome'] = notifications['outcome'].apply(lambda x: 'incorrect' if x == 'uncertain' else x)
+        notifications['notification'] = notifications['notification'].apply(lambda x: 'incorrect' if x == 'uncertain' else x)
         labels.rename(columns={'y': 'true_label'}, inplace=True)
         predictions.rename(columns={'y': 'pred_label'}, inplace=True)
 
         self.results = (notifications.merge(predictions, left_index=True, right_index=True)
                         .merge(labels, left_index=True, right_index=True))
 
-        outcomes = self.results.apply(lambda x: get_outcome(x['outcome'], x['true_label'], x['pred_label'], invert),
+        outcomes = self.results.apply(lambda x: get_outcome(x['notification'], x['true_label'], x['pred_label'], invert),
                                       axis=1)
         outcomes_counts = outcomes.value_counts()
 
