@@ -6,6 +6,7 @@ from safednn.core.evaluation import Evaluation
 from safednn.handlers.benchmark import BenchmarkPlugin
 from safednn.handlers.tool import ToolPlugin
 from safednn.core.exc import SafeDNNError
+from safednn.core.plotter import Plotter
 
 
 class Evaluate(Controller):
@@ -97,9 +98,9 @@ class Evaluate(Controller):
         self.app.args.print_help()
 
     @ex(
-        help='Offline analysis of a tool on a dataset from a given benchmark',
+        help='Computes the efficiency of the executions under a working directory',
         arguments=[
-            (['-f', '--force'], {'help': 'Force the execution of the tool', 'action': 'store_true'})
+            (['-f', '--force'], {'help': 'Force re-computation of results', 'action': 'store_true'})
         ]
     )
     def efficiency(self):
@@ -130,9 +131,10 @@ class Evaluate(Controller):
         pd.DataFrame(results).to_csv(self.working_dir / "efficiency.csv", index=False)
 
     @ex(
-        help='Runs a tool on a dataset from a given benchmark',
+        help='Computes the effectiveness of the executions under a working directory',
         arguments=[
-            (['-f', '--force'], {'help': 'Force the execution of the tool', 'action': 'store_true'})
+            (['-f', '--force'], {'help': 'Force re-computation of results', 'action': 'store_true'}),
+            (['-i', '--invert'], {'help': 'Sets the positive class the mis-classifications', 'action': 'store_true'})
         ]
     )
     def effectiveness(self):
@@ -152,21 +154,76 @@ class Evaluate(Controller):
         infer_success_executions = executions[(executions['phase'] == 'infer') & (executions['status'] == 'success')]
         results = []
 
+        for group, rows in infer_success_executions.groupby(['tool', 'model', 'dataset', 'benchmark']):
+            tool, model, dataset, benchmark = group
+            labels = self.get_test_labels(dataset, benchmark)
+            predictions = self.get_predictions(model, benchmark)
+
+            tool_model_run_effectiveness = []
+
+            for i, row in rows.iterrows():
+                notifications = self.get_notifications(tool, row['output'])
+                evaluation = Evaluation(notifications=notifications, labels=labels, predictions=predictions,
+                                        invert=self.app.pargs.invert)
+
+                effectiveness = evaluation.performance()
+                effectiveness.update(evaluation.to_dict())
+                tool_model_run_effectiveness.append(effectiveness)
+
+            df = pd.DataFrame(tool_model_run_effectiveness)
+            # Compute the average effectiveness for the tool and model
+            tool_model_effectiveness = df.mean().to_dict()
+            tool_model_effectiveness['tool'] = tool
+            tool_model_effectiveness['model'] = model
+            results.append(tool_model_effectiveness)
+
+        pd.DataFrame(results).to_csv(self.working_dir / "effectiveness.csv", index=False)
+
+    @ex(
+        help='Computes the variance of the executions under a working directory',
+        arguments=[
+            (['-f', '--force'], {'help': 'Force re-computation of results', 'action': 'store_true'}),
+            (['-i', '--invert'], {'help': 'Sets the positive class the mis-classifications', 'action': 'store_true'})
+        ]
+    )
+    def variance(self):
+        variance_path = self.working_dir / "variance.csv"
+
+        if variance_path.exists() and not self.app.pargs.force:
+            self.app.log.error(f"Variance file already exists in {variance_path}")
+            exit(0)
+
+        executions_path = self.working_dir / "executions.csv"
+
+        if not executions_path.exists():
+            self.app.log.error(f"Executions file not found in {executions_path}")
+            exit(1)
+
+        plotter = Plotter(figures_path=self.working_dir)
+
+        executions = pd.read_csv(executions_path, index_col=False)
+        infer_success_executions = executions[(executions['phase'] == 'infer') & (executions['status'] == 'success')]
+        results = []
+
         for tool_model, rows in infer_success_executions.groupby(['tool', 'model']):
             tool, model = tool_model
 
             for i, row in rows.iterrows():
-                # TODO: add run number otherwise it will overwrite the same experiments
                 notifications = self.get_notifications(tool, row['output'])
                 labels = self.get_test_labels(row['dataset'], row['benchmark'])
                 predictions = self.get_predictions(model, row['benchmark'])
-                evaluation = Evaluation(notifications=notifications, labels=labels, predictions=predictions)
+                evaluation = Evaluation(notifications=notifications, labels=labels, predictions=predictions,
+                                        invert=self.app.pargs.invert)
 
                 effectiveness = evaluation.performance()
                 effectiveness.update(evaluation.to_dict())
                 effectiveness['tool'] = tool
                 effectiveness['model'] = model
+                effectiveness['run'] = i
 
                 results.append(effectiveness)
 
-        pd.DataFrame(results).to_csv(self.working_dir / "effectiveness.csv", index=False)
+        df = pd.DataFrame(results)
+        plotter.box_plot(df, x='tool', y='mcc', tag='variance', hue='model')
+
+        #.to_csv(self.working_dir / "effectiveness.csv", index=False))

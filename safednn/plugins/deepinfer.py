@@ -34,6 +34,7 @@ class DeepInfer(ToolPlugin):
         # replace all 'wrong with incorrect'
 
         df['implication'] = df['implication'].str.replace('Wrong', 'incorrect')
+        df['implication'] = df['implication'].str.replace('Correct', 'correct')
 
         return df.rename(columns={'implication': 'notification'})
 

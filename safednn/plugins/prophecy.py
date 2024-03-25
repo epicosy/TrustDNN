@@ -1,3 +1,4 @@
+import pandas as pd
 from pathlib import Path
 
 from safednn.handlers.tool import ToolPlugin
@@ -27,6 +28,12 @@ class Prophecy(ToolPlugin):
         output = working_dir / 'predictions' / 'results_clf.csv'
 
         return output, subcommand
+
+    # TODO: there is a better way of doing this and make it part of the plugin, just provide output path and column name
+    def get_notifications(self, output: Path, **kwargs):
+        df = pd.read_csv(output)
+
+        return df.rename(columns={'outcome': 'notification'})
 
 
 def load(app):
