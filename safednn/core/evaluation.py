@@ -95,7 +95,8 @@ class Evaluation:
 
     @property
     def true_positive_rate(self):
-        return self.true_pos / (self.true_pos + self.false_neg)
+        denominator = self.true_pos + self.false_neg
+        return (self.true_pos / denominator) if denominator > 0 else 0
 
     def performance(self):
         return {

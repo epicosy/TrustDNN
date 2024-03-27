@@ -224,6 +224,6 @@ class Evaluate(Controller):
                 results.append(effectiveness)
 
         df = pd.DataFrame(results)
-        plotter.box_plot(df, x='tool', y='mcc', tag='variance', hue='model')
+        plotter.box_plot(df, x='model', y='mcc', tag='variance', hue='tool')
 
         #.to_csv(self.working_dir / "effectiveness.csv", index=False))
