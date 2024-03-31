@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 from safednn.core.split.base import Split
 
@@ -16,7 +17,7 @@ class NPYSplit(Split):
     @property
     def labels(self):
         if self._labels is None:
-            self._labels = np.load(self.labels_path)
+            self._labels = pd.DataFrame(np.load(self.labels_path), columns=['y'])
 
         return self._labels
 

@@ -3,10 +3,7 @@ from cement.utils.version import get_version_banner
 from ..core.version import get_version
 
 
-VERSION_BANNER = """
-A framework for evaluating tools that reason about the trustworthiness of the DNN's predictions. %s
-%s
-""" % (get_version(), get_version_banner())
+VERSION_BANNER = "A framework for evaluating tools that reason about the trustworthiness of the DNN's predictions."
 
 
 class Base(Controller):

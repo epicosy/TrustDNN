@@ -17,7 +17,7 @@ class Prophecy(ToolPlugin):
     def analyze_command(self, model: Model, dataset: Dataset, working_dir: Path, **kwargs):
         command = f"-m {model.path} -wd {working_dir} analyze "
         command += f"-tx {dataset.train.features_path} -ty {dataset.train.labels_path} "
-        command += f"-vx {dataset.val.features_path} -vy {dataset.val.labels_path}"
+        command += f"-vx {dataset.val.features_path} -vy {dataset.val.labels_path} -odl -ial -sr"
         output = working_dir / 'ruleset.csv'
 
         return output, command
