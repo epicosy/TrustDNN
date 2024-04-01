@@ -23,11 +23,13 @@ class InstanceHandler(HandlersInterface, Handler):
         command = command_call(sub_command)
 
         if out_path and not out_path.exists():
-            return self._execute(command, output=out_path, cwd=tool_path, stdout=True, stderr=True)
+            return self._execute(command, instance.working_dir.parent, output=out_path, cwd=tool_path, stdout=True,
+                                 stderr=True)
 
         return None
 
-    def _execute(self, command: str, output: Path, cwd: Path, stdout: bool = False, stderr: bool = False) -> Execution:
+    def _execute(self, command: str, log_path: Path, output: Path, cwd: Path, stdout: bool = False,
+                 stderr: bool = False) -> Execution:
         """
             Function to run shell commands
         """
@@ -36,18 +38,27 @@ class InstanceHandler(HandlersInterface, Handler):
         timestamp = int(datetime.now(timezone.utc).timestamp())
         start_time = time.time()
 
+        stdout_file = log_path / f"{timestamp}.stdout"
+        stderr_file = log_path / f"{timestamp}.stderr"
+
         # Execute the command with stdout redirected to a pipe
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    text=True, cwd=cwd)
 
         # Print stdout and stderr lines as they become available
         for line in process.stdout:
+            with stdout_file.open('a') as f:
+                f.write(line)
+
             if stdout:
                 self.app.log.info(line.rstrip())
 
         process.wait()
 
         for line in process.stderr:
+            with stderr_file.open('a') as f:
+                f.write(line)
+
             if stderr:
                 self.app.log.error(line.rstrip())
 

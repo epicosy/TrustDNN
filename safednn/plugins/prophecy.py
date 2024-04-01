@@ -11,8 +11,7 @@ class Prophecy(ToolPlugin):
         label = 'prophecy'
 
     def __init__(self, **kw):
-        super().__init__('prophecy', command='prophecy.main', path='~/projects/ProphecyPlus',
-                         interpreter="python3 -m", env_path='~/projects/ProphecyPlus/env', **kw)
+        super().__init__('prophecy', **kw)
 
     def analyze_command(self, model: Model, dataset: Dataset, working_dir: Path, **kwargs):
         command = f"-m {model.path} -wd {working_dir} analyze "

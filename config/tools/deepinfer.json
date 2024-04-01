@@ -1,0 +1,6 @@
+{
+  "interpreter": "python3 -m",
+  "command": "deepinfer.main",
+  "path": "/opt/DeepInferPlus",
+  "env_path": "/opt/DeepInferPlus/env"
+}

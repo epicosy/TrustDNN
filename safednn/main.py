@@ -1,4 +1,5 @@
 
+from pathlib import Path
 from cement import App, TestApp, init_defaults
 from cement.core.exc import CaughtSignal, InterfaceError
 from .core.exc import SafeDNNError
@@ -6,14 +7,15 @@ from .controllers.base import Base
 from .controllers.execute import Execute
 from .controllers.evaluate import Evaluate
 
-
 from safednn.core.interfaces import PluginsInterface, HandlersInterface
 from safednn.handlers.instance import InstanceHandler
+
+from safednn.handlers.tool import ToolPlugin
+from safednn.handlers.benchmark import BenchmarkPlugin
 
 
 # configuration defaults
 CONFIG = init_defaults('safednn')
-CONFIG['safednn']['foo'] = 'bar'
 
 
 class SafeDNN(App):
@@ -81,6 +83,17 @@ class SafeDNN(App):
                 if not isinstance(plugin, kind):
                     raise TypeError(f'Plugin {name} is not of type {kind.__name__}')
 
+            if kind == ToolPlugin:
+                configs = self.config.get('tools', name)
+            elif kind == BenchmarkPlugin:
+                configs = self.config.get('benchmarks', name)
+            else:
+                raise InterfaceError(f'Invalid kind {kind}')
+
+            if configs is None:
+                raise KeyError(f'No configuration found for plugin {name}')
+
+            kw.update(configs)
             plugin.__init__(**kw)
             plugin._setup(self)
             self.log.info(f'Initialized plugin {name}')
@@ -96,9 +109,56 @@ class SafeDNN(App):
         except KeyError as ke:
             self.log.error(f"Could not resolve plugin {name}")
             exit(1)
+        except FileNotFoundError as fnf:
+            self.log.error(str(fnf))
+            exit(1)
+
+    def load_configs(self):
+        import os
+        import json
+
+        safednn_dir = os.environ.get('SAFEDNN_DIR', None)
+
+        if safednn_dir is None:
+            self.log.error('SAFEDNN_DIR not set')
+            exit(1)
+
+        safednn_config_path = Path(safednn_dir) / 'config'
+
+        if not safednn_config_path.exists():
+            self.log.error(f'Config path {safednn_config_path} not found')
+            exit(1)
+
+        tools_config_path = safednn_config_path / 'tools'
+
+        if not tools_config_path.exists():
+            self.log.error(f'Tools config path {tools_config_path} not found')
+            exit(1)
+
+        self.config.add_section('tools')
+
+        for tool_config_path in tools_config_path.iterdir():
+            if tool_config_path.is_file() and tool_config_path.suffix == '.json':
+                self.log.info(f'Loading tool config {tool_config_path}')
+                with tool_config_path.open() as f:
+                    self.config.set('tools', tool_config_path.stem, json.load(f))
+
+        benchmarks_config_path = safednn_config_path / 'benchmarks'
+
+        if not benchmarks_config_path.exists():
+            self.log.error(f'Benchmarks config path {benchmarks_config_path} not found')
+            exit(1)
+
+        self.config.add_section('benchmarks')
+
+        for benchmark_config_path in benchmarks_config_path.iterdir():
+            if benchmark_config_path.is_file() and benchmark_config_path.suffix == '.json':
+                self.log.info(f'Loading benchmark config {benchmark_config_path}')
+                with benchmark_config_path.open() as f:
+                    self.config.set('benchmarks', benchmark_config_path.stem, json.load(f))
 
 
-class SafeDNNTest(TestApp,SafeDNN):
+class SafeDNNTest(TestApp, SafeDNN):
     """A sub-class of SafeDNN that is better suited for testing."""
 
     class Meta:
@@ -108,6 +168,7 @@ class SafeDNNTest(TestApp,SafeDNN):
 def main():
     with SafeDNN() as app:
         try:
+            app.load_configs()
             app.run()
 
         except AssertionError as e:

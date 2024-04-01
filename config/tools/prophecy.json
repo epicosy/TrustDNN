@@ -1,0 +1,6 @@
+{
+  "interpreter": "python3 -m",
+  "command": "prophecy.main",
+  "path": "/opt/ProphecyPlus",
+  "env_path": "/opt/ProphecyPlus/env"
+}

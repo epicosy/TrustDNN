@@ -16,7 +16,8 @@ class ToolPlugin(PluginHandler):
     class Meta:
         label = 'tool'
 
-    def __init__(self, name: str, command: str, path: str, interpreter: str = None, env_path: str = None, **kw):
+    def __init__(self, name: str, command: str = None, path: str = None, interpreter: str = None, env_path: str = None,
+                 **kw):
         super().__init__(name, **kw)
         """
             Tool Plugin
@@ -30,10 +31,9 @@ class ToolPlugin(PluginHandler):
         # check paths
         self.command = command
         self.interpreter = interpreter
-        # TODO: define default working directory
-        self.path = Path(path).expanduser()
+        self.path = Path(path).expanduser() if path else None
 
-        if not self.path.exists():
+        if path and not self.path.exists():
             raise FileNotFoundError(f"Tool path {path} not found")
 
         self.env_path = Path(env_path).expanduser() if env_path else None

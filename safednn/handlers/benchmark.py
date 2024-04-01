@@ -11,31 +11,22 @@ class BenchmarkPlugin(PluginHandler):
     class Meta:
         label = 'benchmark'
 
-    def __init__(self, name: str, datasets_dir: str, models_dir: str, predictions_dir: str, **kw):
+    def __init__(self, name: str, datasets_dir: str = None, models_dir: str = None, predictions_dir: str = None, **kw):
         super().__init__(name, **kw)
         self._datasets: Union[Dict[str, Dataset], None] = None
         self._models: Union[Dict[str, Model], None] = None
 
-        if datasets_dir is None:
-            raise ValueError("Datasets directory is required")
+        self.datasets_path: Path = Path(datasets_dir).expanduser() if datasets_dir else None
+        self.models_path: Path = Path(models_dir).expanduser() if models_dir else None
+        self.predictions_path: Path = Path(predictions_dir).expanduser() if predictions_dir else None
 
-        if models_dir is None:
-            raise ValueError("Models directory is required")
-
-        if predictions_dir is None:
-            raise ValueError("Predictions directory is required")
-
-        self.datasets_path: Path = Path(datasets_dir).expanduser()
-        self.models_path: Path = Path(models_dir).expanduser()
-        self.predictions_path: Path = Path(predictions_dir).expanduser()
-
-        if not self.datasets_path.exists():
+        if self.datasets_path and not self.datasets_path.exists():
             raise ValueError(f"Datasets directory {datasets_dir} does not exist")
 
-        if not self.models_path.exists():
+        if self.models_path and not self.models_path.exists():
             raise ValueError(f"Models directory {models_dir} does not exist")
 
-        if not self.predictions_path.exists():
+        if self.predictions_path and not self.predictions_path.exists():
             raise ValueError(f"Predictions directory {predictions_dir} does not exist")
 
     @property

@@ -12,8 +12,7 @@ class DeepInfer(ToolPlugin):
         label = 'deepinfer'
 
     def __init__(self, **kw):
-        super().__init__('deepinfer', command='deepinfer.main', path='~/projects/nasa/DeepInferPlus',
-                         interpreter="python3 -m", env_path='~/projects/nasa/DeepInferPlus/env', **kw)
+        super().__init__('deepinfer', **kw)
 
     def analyze_command(self, model: Model, dataset: Dataset, working_dir: Path, **kwargs):
         command = f"-m {model.path} -wd {working_dir} analyze "

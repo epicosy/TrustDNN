@@ -1,0 +1,7 @@
+{
+  "interpreter": "python3 -m",
+  "command": "selfchecker.main",
+  "path": "/opt/SelfCheckerPlus",
+  "env_path": "/opt/SelfCheckerPlus/env",
+  "batch_size": 32
+}

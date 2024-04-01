@@ -1,10 +1,18 @@
 # A framework for evaluating tools that reason about the trustworthiness of the DNN's predictions.
 
 ## Installation
+SafeDNN is implemented in Python 3.10. To install the required packages, run:
 
+```shell
+#Optional: Create a virtual environment
+$ python3.10 -m venv env
+$ source env/bin/activate
+$ pip install -r requirements.txt
+$ export SAFEDNN_DIR=~/.safednn
+$ mkdir $SAFEDNN_DIR
+$ cp -r config $SAFEDNN_DIR
 ```
-$ pip install .
-```
+
 
 ## Development
 

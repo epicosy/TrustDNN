@@ -12,12 +12,12 @@ class SelfChecker(ToolPlugin):
     class Meta:
         label = 'selfchecker'
 
-    def __init__(self, **kw):
-        super().__init__('selfchecker', command='selfchecker.main', path='~/projects/nasa/SelfCheckerPlus',
-                         interpreter="python3 -m", env_path='~/projects/nasa/SelfCheckerPlus/env', **kw)
+    def __init__(self, batch_size: int = 128, **kw):
+        super().__init__('selfchecker', **kw)
+        self.batch_size = batch_size
 
     def analyze_command(self, model: Model, dataset: Dataset, working_dir: Path, **kwargs):
-        command = f"-m {model.path} -wd {working_dir} analyze "
+        command = f"-m {model.path} -wd {working_dir} -bs {self.batch_size} analyze "
         command += f"-tx {dataset.train.features_path} -ty {dataset.train.labels_path} "
         command += f"-vx {dataset.val.features_path} -vy {dataset.val.labels_path}"
         output = working_dir / 'pred_labels_valid.npy'
@@ -25,7 +25,7 @@ class SelfChecker(ToolPlugin):
         return output, command
 
     def infer_command(self, model: Model, dataset: Dataset, working_dir: Path, **kwargs):
-        subcommand = f"-m {model.path} -wd {working_dir} infer "
+        subcommand = f"-m {model.path} -wd {working_dir} -bs {self.batch_size} infer "
         subcommand += f"-tx {dataset.test.features_path} -ty {dataset.test.labels_path}"
         output = working_dir / 'pred_labels_test.npy'
 
