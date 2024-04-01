@@ -29,7 +29,7 @@ dependencies = [
     "colorlog",
     "pyyaml~=6.0.1",
     "pandas~=1.3.5",
-    "seaborn~=0.12.2",
+    "seaborn~=0.13.0",
 ]
 
 [project.optional-dependencies]
