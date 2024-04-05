@@ -28,14 +28,12 @@ def monitor_process(process, stdout_file, stderr_file, stdout_callback=None, std
             stderr_callback(line)
 
 
-def get_cpu_memory_usage(pid, cpu_usage_callback, memory_usage_callback):
+def get_memory_usage(pid, memory_usage_callback):
     while True:
         try:
             p = psutil.Process(pid)
 
             with p.oneshot():
-                # CPU usage
-                cpu_usage_callback(p.cpu_percent())
                 # Memory usage
                 memory_usage_callback(p.memory_info().rss)
 
@@ -79,15 +77,11 @@ class InstanceHandler(HandlersInterface, Handler):
                                    text=True, cwd=cwd)
 
         # Lists to store CPU and memory usage
-        cpu_usage = []
         memory_usage = []
 
         # Start monitoring CPU and memory usage
-        cpu_memory_thread = threading.Thread(target=get_cpu_memory_usage,
-                                             args=(process.pid,
-                                                   cpu_usage.append,
-                                                   memory_usage.append))
-        cpu_memory_thread.start()
+        thread = threading.Thread(target=get_memory_usage, args=(process.pid, memory_usage.append))
+        thread.start()
 
         # Monitor stdout and stderr
         monitor_process(process, stdout_file, stderr_file,
@@ -97,8 +91,8 @@ class InstanceHandler(HandlersInterface, Handler):
         # Wait for the process to finish
         process.wait()
 
-        # Wait for CPU and memory monitoring thread to finish
-        cpu_memory_thread.join()
+        # Wait for memory monitoring thread to finish
+        thread.join()
 
         duration = round(time.time() - start_time, 2)
         return_code = process.returncode if process.returncode is not None else -1
@@ -111,5 +105,4 @@ class InstanceHandler(HandlersInterface, Handler):
             executed = True
 
         return Execution(timestamp=timestamp, duration=duration, executed=executed, status=status, output=output,
-                         return_code=return_code, mem_usage=sum(memory_usage) / (1024 ** 2),
-                         cpu_usage=sum(cpu_usage) / len(cpu_usage))
+                         return_code=return_code, mem_usage=sum(memory_usage) / (1024 ** 2))

@@ -31,6 +31,7 @@ class ToolPlugin(PluginHandler):
         # check paths
         self.command = command
         self.interpreter = interpreter
+        self.has_metrics = False
         self.path = Path(path).expanduser() if path else None
 
         if path and not self.path.exists():

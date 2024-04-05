@@ -167,19 +167,26 @@ class Evaluate(Controller):
         results = []
 
         for tool_model, rows in infer_success_executions.groupby(['tool', 'model']):
-            tool, model = tool_model
+            tool_name, model = tool_model
+            tool = self.get_tool(tool_name)
 
             for i, row in rows.iterrows():
-                row['output'] = row['output'].replace('/content', '/home/epicosy/Downloads')
-                notifications = self.get_notifications(tool, row['output'])
-                labels = self.get_test_labels(row['dataset'], row['benchmark'])
-                predictions = self.get_predictions(model, row['benchmark'])
-                evaluation = Evaluation(notifications=notifications, labels=labels, predictions=predictions,
-                                        invert=self.app.pargs.invert)
+                if not tool.has_metrics:
+                    notifications = self.get_notifications(tool_name, row['output'])
+                    labels = self.get_test_labels(row['dataset'], row['benchmark'])
+                    predictions = self.get_predictions(model, row['benchmark'])
+                    evaluation = Evaluation(notifications=notifications, labels=labels, predictions=predictions,
+                                            invert=self.app.pargs.invert)
 
-                effectiveness = evaluation.performance()
-                effectiveness.update(evaluation.to_dict())
-                effectiveness['tool'] = tool
+                    effectiveness = evaluation.performance()
+                    effectiveness.update(evaluation.to_dict())
+                else:
+                    effectiveness = tool.get_metrics(row['output'])
+                    effectiveness['correct'] = None
+                    effectiveness['incorrect'] = None
+                    effectiveness['uncertain'] = None
+
+                effectiveness['tool'] = tool_name
                 effectiveness['model'] = model
                 effectiveness['run'] = i
 
@@ -187,6 +194,6 @@ class Evaluate(Controller):
 
         df = pd.DataFrame(results)
         df.to_csv(self.working_dir / "effectiveness.csv", index=False)
-        self.plotter.fig_size = (10, 20)
-        self.plotter.bar_plot(df, x='mcc', y='model', hue='tool', y_label='MCC', tag='effectiveness', x_label='Models',
-                              error_bars=True, orient='h')
+        self.plotter.fig_size = (20, 10)
+        self.plotter.bar_plot(df, x='model', y='mcc', hue='tool', y_label='MCC', tag='effectiveness', x_label='Models',
+                              error_bars=True)

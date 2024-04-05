@@ -12,7 +12,6 @@ class Execution:
     status: str
     duration: float
     mem_usage: float
-    cpu_usage: float
     return_code: int
 
     def to_dict(self):
@@ -22,7 +21,6 @@ class Execution:
             "status": self.status,
             "duration": self.duration,
             "mem_usage": self.mem_usage,
-            "cpu_usage": self.cpu_usage,
             "return_code": self.return_code,
             "output": self.output
         }

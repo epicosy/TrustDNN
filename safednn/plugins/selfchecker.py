@@ -1,3 +1,5 @@
+import json
+
 import numpy as np
 import pandas as pd
 
@@ -15,6 +17,7 @@ class SelfChecker(ToolPlugin):
     def __init__(self, batch_size: int = 128, **kw):
         super().__init__('selfchecker', **kw)
         self.batch_size = batch_size
+        self.has_metrics = True
 
     def analyze_command(self, model: Model, dataset: Dataset, working_dir: Path, **kwargs):
         command = f"-m {model.path} -wd {working_dir} -bs {self.batch_size} analyze "
@@ -27,21 +30,29 @@ class SelfChecker(ToolPlugin):
     def infer_command(self, model: Model, dataset: Dataset, working_dir: Path, **kwargs):
         subcommand = f"-m {model.path} -wd {working_dir} -bs {self.batch_size} infer "
         subcommand += f"-tx {dataset.test.features_path} -ty {dataset.test.labels_path}"
-        output = working_dir / 'pred_labels_test.npy'
+        output = working_dir / 'performance.json'
 
         return output, subcommand
 
+    # This is just a shortcut to get the metrics for selfchecker, but a tool is supposed to return the notifications
+    @staticmethod
+    def get_metrics(output: Path):
+        with open(output, 'r') as f:
+            return json.load(f)
+
     def get_notifications(self, output: Path, **kwargs):
-        pred_labels = np.load(output).astype(int)
-        notifications = []
+        pass
 
-        for idx, _ in enumerate(pred_labels):
-            if pred_labels[idx].T[-2] != pred_labels[idx].T[-1]:
-                notifications.append('incorrect')
-            else:
-                notifications.append('correct')
+        #pred_labels = np.load(output).astype(int)
+        #notifications = []
 
-        return pd.DataFrame(notifications, columns=['notification'])
+        #for idx, _ in enumerate(pred_labels):
+        #    if pred_labels[idx].T[-2] != pred_labels[idx].T[-1]:
+        #        notifications.append('incorrect')
+        #    else:
+        #        notifications.append('correct')
+
+        #return pd.DataFrame(notifications, columns=['notification'])
 
 
 def load(app):
