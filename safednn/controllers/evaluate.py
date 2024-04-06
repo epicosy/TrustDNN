@@ -129,11 +129,13 @@ class Evaluate(Controller):
         for tool_phase_dataset, rows in executions.groupby(['tool', 'phase', 'dataset']):
             tool, phase, dataset = tool_phase_dataset
             average_duration = rows['duration'].mean()
+            average_memory = rows['mem_usage'].mean()
             results.append({
                 'tool': tool,
                 'phase': phase,
                 'dataset': dataset,
-                'duration': average_duration
+                'duration': average_duration,
+                'memory': average_memory
             })
 
         df = pd.DataFrame(results)
@@ -141,12 +143,15 @@ class Evaluate(Controller):
         self.plotter.fig_size = (11, 9)
         self.plotter.stacked_bar_plot(df, x='dataset', y='duration', stack='phase', hue='tool', y_label='Duration (s)',
                                       tag='efficiency', x_label='Tool')
+        self.plotter.stacked_bar_plot(df, x='dataset', y='memory', stack='phase', hue='tool', y_label='Memory (MiB)',
+                                      tag='efficiency_memory', x_label='Tool')
 
     @ex(
         help='Computes the effectiveness of the executions under a working directory',
         arguments=[
             (['-f', '--force'], {'help': 'Force re-computation of results', 'action': 'store_true'}),
-            (['-i', '--invert'], {'help': 'Sets the positive class the mis-classifications', 'action': 'store_true'})
+            (['-i', '--invert'], {'help': 'Sets the positive class the mis-classifications', 'action': 'store_true'}),
+            (['-rwd', '--replace_workdir'], {'help': 'Replace the working dir (old:new)', 'type': str})
         ]
     )
     def effectiveness(self):
@@ -165,6 +170,13 @@ class Evaluate(Controller):
         executions = pd.read_csv(executions_path, index_col=False)
         infer_success_executions = executions[(executions['phase'] == 'infer') & (executions['status'] == 'success')]
         results = []
+
+        print(f"Parsing {len(infer_success_executions)} successful executions")
+
+        if self.app.pargs.replace_workdir:
+            old, new = self.app.pargs.replace_workdir.split(':')
+            infer_success_executions['output'] = infer_success_executions['output'].str.replace(old, new)
+            # executions.to_csv(executions_path, index=False)
 
         for tool_model, rows in infer_success_executions.groupby(['tool', 'model']):
             tool_name, model = tool_model
@@ -193,7 +205,12 @@ class Evaluate(Controller):
                 results.append(effectiveness)
 
         df = pd.DataFrame(results)
+
+        # select the best for each tool and model by mcc score
+        best = df.sort_values('mcc', ascending=False).groupby(['tool', 'model']).first().reset_index()
+        best.to_csv(self.working_dir / "best.csv", index=False)
+
         df.to_csv(self.working_dir / "effectiveness.csv", index=False)
-        self.plotter.fig_size = (20, 10)
+        self.plotter.fig_size = (25, 7)
         self.plotter.bar_plot(df, x='model', y='mcc', hue='tool', y_label='MCC', tag='effectiveness', x_label='Models',
                               error_bars=True)

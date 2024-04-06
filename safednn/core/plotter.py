@@ -107,7 +107,7 @@ class Plotter:
 
         plt.xticks(fontsize=self.font_size)
 
-        plt.legend(loc='lower center', fontsize=self.labels_size)
+        plt.legend(loc='best', fontsize=self.labels_size)
         plt.tight_layout()
         plt.savefig(str(output_path), transparent=transparent)
         plt.show()

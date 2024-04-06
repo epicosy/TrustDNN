@@ -76,7 +76,7 @@ class InstanceHandler(HandlersInterface, Handler):
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    text=True, cwd=cwd)
 
-        # Lists to store CPU and memory usage
+        # Store memory usage
         memory_usage = []
 
         # Start monitoring CPU and memory usage
@@ -96,6 +96,10 @@ class InstanceHandler(HandlersInterface, Handler):
 
         duration = round(time.time() - start_time, 2)
         return_code = process.returncode if process.returncode is not None else -1
+        # Calculate average memory usage
+        mem_usage = sum(memory_usage) / len(memory_usage)
+        # Convert memory usage to MiB
+        mem_usage = (mem_usage / (1024**2)) if mem_usage > 0 else 0
 
         if not output.exists():
             status = 'error' if return_code != 0 else 'failed'
@@ -105,4 +109,4 @@ class InstanceHandler(HandlersInterface, Handler):
             executed = True
 
         return Execution(timestamp=timestamp, duration=duration, executed=executed, status=status, output=output,
-                         return_code=return_code, mem_usage=sum(memory_usage) / (1024 ** 2))
+                         return_code=return_code, mem_usage=mem_usage)
