@@ -7,6 +7,7 @@ from pathlib import Path
 from cement import Handler
 from typing import Callable, Union
 from datetime import datetime, timezone
+from statistics import median, mean
 
 from safednn.core.objects import Execution, Instance
 from safednn.core.interfaces import HandlersInterface
@@ -97,9 +98,9 @@ class InstanceHandler(HandlersInterface, Handler):
         duration = round(time.time() - start_time, 2)
         return_code = process.returncode if process.returncode is not None else -1
         # Calculate average memory usage
-        mem_usage = sum(memory_usage) / len(memory_usage)
-        # Convert memory usage to MiB
-        mem_usage = (mem_usage / (1024**2)) if mem_usage > 0 else 0
+        mem_mean = mean(memory_usage)
+        mem_median = median(memory_usage)
+        mem_peak = max(memory_usage)
 
         if not output.exists():
             status = 'error' if return_code != 0 else 'failed'
@@ -109,4 +110,4 @@ class InstanceHandler(HandlersInterface, Handler):
             executed = True
 
         return Execution(timestamp=timestamp, duration=duration, executed=executed, status=status, output=output,
-                         return_code=return_code, mem_usage=mem_usage)
+                         return_code=return_code, mem_mean=mem_mean, mem_median=mem_median, mem_peak=mem_peak)
