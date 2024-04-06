@@ -11,7 +11,9 @@ class Execution:
     executed: bool
     status: str
     duration: float
-    mem_usage: float
+    mem_mean: float
+    mem_median: float
+    mem_peak: float
     return_code: int
 
     def to_dict(self):
@@ -20,7 +22,9 @@ class Execution:
             "executed": self.executed,
             "status": self.status,
             "duration": self.duration,
-            "mem_usage": self.mem_usage,
+            "mem_mean": self.mem_mean,
+            "mem_median": self.mem_median,
+            "mem_peak": self.mem_peak,
             "return_code": self.return_code,
             "output": self.output
         }
