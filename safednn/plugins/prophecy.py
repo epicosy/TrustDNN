@@ -10,13 +10,19 @@ class Prophecy(ToolPlugin):
     class Meta:
         label = 'prophecy'
 
-    def __init__(self, **kw):
+    def __init__(self, only_activation_layers: bool = False, **kw):
         super().__init__('prophecy', **kw)
+        self.only_activation_layers = only_activation_layers
 
     def analyze_command(self, model: Model, dataset: Dataset, working_dir: Path, **kwargs):
         command = f"-m {model.path} -wd {working_dir} analyze "
         command += f"-tx {dataset.train.features_path} -ty {dataset.train.labels_path} "
-        command += f"-vx {dataset.val.features_path} -vy {dataset.val.labels_path} -odl -ial -sr"
+
+        if not self.only_activation_layers:
+            command += f"-vx {dataset.val.features_path} -vy {dataset.val.labels_path} -odl -ial -sr"
+        else:
+            command += f"-vx {dataset.val.features_path} -vy {dataset.val.labels_path} -ial -sr"
+
         output = working_dir / 'ruleset.csv'
 
         return output, command

@@ -14,13 +14,17 @@ class SelfChecker(ToolPlugin):
     class Meta:
         label = 'selfchecker'
 
-    def __init__(self, batch_size: int = 128, **kw):
+    def __init__(self, batch_size: int = 128, only_activation_layers: bool = False, **kw):
         super().__init__('selfchecker', **kw)
         self.batch_size = batch_size
+        self.only_activation_layers = only_activation_layers
         self.has_metrics = True
 
     def analyze_command(self, model: Model, dataset: Dataset, working_dir: Path, **kwargs):
-        command = f"-m {model.path} -wd {working_dir} -bs {self.batch_size} analyze "
+        if not self.only_activation_layers:
+            command = f"-m {model.path} -wd {working_dir} -bs {self.batch_size} analyze "
+        else:
+            command = f"-m {model.path} -wd {working_dir} -bs {self.batch_size} -al analyze "
         command += f"-tx {dataset.train.features_path} -ty {dataset.train.labels_path} "
         command += f"-vx {dataset.val.features_path} -vy {dataset.val.labels_path}"
         output = working_dir / 'pred_labels_valid.npy'
@@ -28,7 +32,10 @@ class SelfChecker(ToolPlugin):
         return output, command
 
     def infer_command(self, model: Model, dataset: Dataset, working_dir: Path, **kwargs):
-        subcommand = f"-m {model.path} -wd {working_dir} -bs {self.batch_size} infer "
+        if not self.only_activation_layers:
+            subcommand = f"-m {model.path} -wd {working_dir} -bs {self.batch_size} infer "
+        else:
+            subcommand = f"-m {model.path} -wd {working_dir} -bs {self.batch_size} -al infer "
         subcommand += f"-tx {dataset.test.features_path} -ty {dataset.test.labels_path}"
         output = working_dir / 'performance.json'
 
