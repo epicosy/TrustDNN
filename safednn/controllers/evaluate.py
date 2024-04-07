@@ -129,7 +129,7 @@ class Evaluate(Controller):
         for tool_phase_dataset, rows in executions.groupby(['tool', 'phase', 'dataset']):
             tool, phase, dataset = tool_phase_dataset
             average_duration = rows['duration'].mean()
-            average_memory = rows['mem_usage'].mean()
+            average_memory = rows['mem_peak'].mean()
             results.append({
                 'tool': tool,
                 'phase': phase,
