@@ -29,14 +29,28 @@ def monitor_process(process, stdout_file, stderr_file, stdout_callback=None, std
             stderr_callback(line)
 
 
-def get_memory_usage(pid, memory_usage_callback):
+def get_process_and_children_memory(process):
+    with process.oneshot():
+        children = process.children(recursive=True)
+
+        memory_info_dict = process.memory_info()._asdict()
+
+        for child in children:
+            child_memory_info = child.memory_info()._asdict()
+
+            for key, value in child_memory_info.items():
+                memory_info_dict[key] = memory_info_dict.get(key, 0) + value
+
+        return memory_info_dict
+
+
+def get_memory_usage(p, memory_usage_callback):
     while True:
         try:
-            p = psutil.Process(pid)
-
-            with p.oneshot():
-                # Memory usage
-                memory_usage_callback(p.memory_info().rss)
+            # Memory usage
+            memory_info = get_process_and_children_memory(p)
+            memory_usage_callback(memory_info['rss'])
+            time.sleep(0.2)
 
         except psutil.NoSuchProcess:
             break
@@ -69,19 +83,19 @@ class InstanceHandler(HandlersInterface, Handler):
         self.app.log.info(f"Executing: {command}")
         timestamp = int(datetime.now(timezone.utc).timestamp())
         start_time = time.time()
+        # Store memory usage
+        memory_usage = []
 
         stdout_file = log_path / f"{timestamp}.stdout"
         stderr_file = log_path / f"{timestamp}.stderr"
 
         # Execute the command with stdout redirected to a pipe
-        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                   text=True, cwd=cwd)
+        process = psutil.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                               text=True, cwd=cwd)
 
-        # Store memory usage
-        memory_usage = []
-
+        #p = psutil.Process(process.pid)
         # Start monitoring CPU and memory usage
-        thread = threading.Thread(target=get_memory_usage, args=(process.pid, memory_usage.append))
+        thread = threading.Thread(target=get_memory_usage, args=(process, memory_usage.append))
         thread.start()
 
         # Monitor stdout and stderr
