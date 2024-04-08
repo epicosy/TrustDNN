@@ -129,7 +129,7 @@ class Evaluate(Controller):
         for tool_phase_dataset, rows in executions.groupby(['tool', 'phase', 'dataset']):
             tool, phase, dataset = tool_phase_dataset
             average_duration = rows['duration'].mean()
-            average_memory = rows['mem_peak'].mean()
+            average_memory = rows['mem_peak'].mean() / (1024**2)
             results.append({
                 'tool': tool,
                 'phase': phase,
@@ -211,6 +211,6 @@ class Evaluate(Controller):
         best.to_csv(self.working_dir / "best.csv", index=False)
 
         df.to_csv(self.working_dir / "effectiveness.csv", index=False)
-        self.plotter.fig_size = (25, 7)
+        self.plotter.fig_size = (27, 7)
         self.plotter.bar_plot(df, x='model', y='mcc', hue='tool', y_label='MCC', tag='effectiveness', x_label='Models',
                               error_bars=True)

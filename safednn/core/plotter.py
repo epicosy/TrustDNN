@@ -1,5 +1,6 @@
 import pandas as pd
 import seaborn as sns
+import numpy as np
 
 from matplotlib import pyplot as plt
 
@@ -95,12 +96,22 @@ class Plotter:
         if not x_label:
             x_label = x.capitalize()
 
-        sns.set(style="whitegrid")  # Setting seaborn style
+        #sns.set(style="whitegrid")  # Setting seaborn style
 
         pivot_data = data.pivot_table(index=[x, hue], columns=stack, values=y)
 
         # Plot the stacked bar plot
-        pivot_data.plot.bar(stacked=True, ax=ax)
+        p = pivot_data.plot.bar(stacked=True, ax=ax, log=True)
+
+        # Annotate each bar with its rounded numerical value
+        #for idx, label in enumerate(list(pivot_data.index)):
+        #    for acc in pivot_data.columns:
+        #        value = np.round(pivot_data.loc[label, acc], decimals=2)
+        #        if acc == 'analyze':
+        #            ax.annotate(str(value), (idx, value), xytext=(0, 15), textcoords='offset points')
+        #        else:
+        #            y = value + np.round(pivot_data.loc[label, 'analyze'], decimals=2)
+        #            ax.annotate(str(value), (idx, y), xytext=(0, 15), textcoords='offset points')
 
         plt.xlabel(x_label, fontsize=self.labels_size, fontweight='bold')
         plt.ylabel(y_label, fontsize=self.labels_size, fontweight='bold')

@@ -1,0 +1,5 @@
+{
+  "datasets_dir": "~/deepinfer_artifacts/data",
+  "models_dir": "~/deepinfer_artifacts/models",
+  "predictions_dir": "~/deepinfer_artifacts/predictions"
+}

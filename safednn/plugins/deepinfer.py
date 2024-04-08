@@ -30,6 +30,20 @@ class DeepInfer(ToolPlugin):
 
     def get_notifications(self, output: Path, **kwargs):
         df = pd.read_csv(output)
+        violations_path = Path(output).parent / 'violations.csv'
+        satisfactions_path = Path(output).parent / 'satisfactions.csv'
+        violations = None
+        satisfactions = None
+
+        if violations_path.exists():
+            violations = pd.read_csv(violations_path)
+
+        if satisfactions_path.exists():
+            satisfactions = pd.read_csv(satisfactions_path)
+
+        print('Model:', Path(output).parent.name, 'Violations:', violations['0'].sum(), 'Satisfactions:',
+              satisfactions['0'].sum())
+
         # replace all 'wrong with incorrect'
 
         df['implication'] = df['implication'].str.replace('Wrong', 'incorrect')
