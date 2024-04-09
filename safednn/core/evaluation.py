@@ -47,6 +47,12 @@ class Evaluation:
                                       axis=1)
         outcomes_counts = outcomes.value_counts()
 
+        ground_truth = self.results.apply(lambda x: x['true_label'] == x['pred_label'], axis=1)
+        ground_truth_counts = ground_truth.value_counts()
+
+        self.gt_correct = ground_truth_counts.get(True, 0)
+        self.gt_incorrect = ground_truth_counts.get(False, 0)
+
         self.true_pos = outcomes_counts.get('tp', 0)
         self.false_pos = outcomes_counts.get('fp', 0)
         self.true_neg = outcomes_counts.get('tn', 0)
@@ -110,6 +116,8 @@ class Evaluation:
 
     def to_dict(self):
         return {
+            "gt_correct": self.gt_correct,
+            "gt_incorrect": self.gt_incorrect,
             "correct": self.correct,
             "incorrect": self.incorrect,
             "uncertain": self.uncertain,
