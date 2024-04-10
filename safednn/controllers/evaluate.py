@@ -124,12 +124,14 @@ class Evaluate(Controller):
             exit(1)
 
         executions = pd.read_csv(executions_path, index_col=False)
+        successful_executions = executions[executions['status'] == 'success']
+
         results = []
 
-        for tool_phase_dataset, rows in executions.groupby(['tool', 'phase', 'dataset']):
+        for tool_phase_dataset, rows in successful_executions.groupby(['tool', 'phase', 'dataset']):
             tool, phase, dataset = tool_phase_dataset
-            average_duration = rows['duration'].mean()
-            average_memory = rows['mem_peak'].mean() / (1024**2)
+            average_duration = round(rows['duration'].mean(), 2)
+            average_memory = round(rows['mem_peak'].mean() / (1024**2), 2)
             results.append({
                 'tool': tool,
                 'phase': phase,
