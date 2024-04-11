@@ -20,7 +20,7 @@ class DeepInfer(ToolPlugin):
         command_args = f"-m {model.path} -wd {working_dir} "
 
         if self.condition:
-            command_args += f"-c {self.condition} "
+            command_args += f"-c '{self.condition}' "
 
         command = f"{command_args} analyze -vx {dataset.val.features_path} "
 
