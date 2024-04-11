@@ -15,12 +15,13 @@ class SelfChecker(ToolPlugin):
         label = 'selfchecker'
 
     def __init__(self, batch_size: int = 128, only_dense_layers: bool = False, only_activation_layers: bool = False,
-                 **kw):
+                 var_threshold: float = None, **kw):
         super().__init__('selfchecker', **kw)
         self.batch_size = batch_size
         self.only_activation_layers = only_activation_layers
         self.only_dense_layers = only_dense_layers
         self.has_metrics = True
+        self.var_threshold = var_threshold
 
     def analyze_command(self, model: Model, dataset: Dataset, working_dir: Path, **kwargs):
         command_args = f"-m {model.path} -wd {working_dir} -bs {self.batch_size} "
@@ -33,6 +34,10 @@ class SelfChecker(ToolPlugin):
 
         command = f"{command_args} analyze -tx {dataset.train.features_path} -ty {dataset.train.labels_path} "
         command += f"-vx {dataset.val.features_path} -vy {dataset.val.labels_path}"
+
+        if self.var_threshold:
+            command += f" --var_threshold {self.var_threshold}"
+
         output = working_dir / 'pred_labels_valid.npy'
 
         return output, command
