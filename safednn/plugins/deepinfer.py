@@ -11,19 +11,33 @@ class DeepInfer(ToolPlugin):
     class Meta:
         label = 'deepinfer'
 
-    def __init__(self, **kw):
+    def __init__(self, condition: str = None, prediction_interval: float = None, **kw):
         super().__init__('deepinfer', **kw)
+        self.condition = condition
+        self.prediction_interval = prediction_interval
 
     def analyze_command(self, model: Model, dataset: Dataset, working_dir: Path, **kwargs):
-        command = f"-m {model.path} -wd {working_dir} analyze "
-        command += f"-vx {dataset.val.features_path} "
+        command_args = f"-m {model.path} -wd {working_dir} "
+
+        if self.condition:
+            command_args += f"-c {self.condition} "
+
+        command = f"{command_args} analyze -vx {dataset.val.features_path} "
+
+        if self.prediction_interval:
+            command += f"-pi {self.prediction_interval} "
+
         output = working_dir / 'analysis.json'
 
         return output, command
 
     def infer_command(self, model: Model, dataset: Dataset, working_dir: Path, **kwargs):
-        subcommand = f"-m {model.path} -wd {working_dir} infer "
-        subcommand += f"-tx {dataset.test.features_path}"
+        command_args = f"-m {model.path} -wd {working_dir} "
+
+        if self.condition:
+            command_args += f"-c {self.condition} "
+
+        subcommand = f"{command_args} infer -tx {dataset.test.features_path}"
         output = working_dir / 'implications.csv'
 
         return output, subcommand
