@@ -1,16 +1,16 @@
 # A framework for evaluating tools that reason about the trustworthiness of the DNN's predictions.
 
 ## Installation
-SafeDNN is implemented in Python 3.10. To install the required packages, run:
+TrustDNN is implemented in Python 3.10. To install the required packages, run:
 
 ```shell
 #Optional: Create a virtual environment
 $ python3.10 -m venv env
 $ source env/bin/activate
 $ pip install -r requirements.txt
-$ export SAFEDNN_DIR=~/.safednn
-$ mkdir $SAFEDNN_DIR
-$ cp -r config $SAFEDNN_DIR
+$ export TRUSTDNN_DIR=~/.trustdnn
+$ mkdir $TRUSTDNN_DIR
+$ cp -r config $TRUSTDNN_DIR
 ```
 
 
@@ -30,9 +30,9 @@ $ make virtualenv
 $ source env/bin/activate
 
 
-### run safednn cli application
+### run trustdnn cli application
 
-$ safednn --help
+$ trustdnn --help
 
 
 ### run pytest / coverage
@@ -65,11 +65,11 @@ $ make dist-upload
 
 ### Docker
 
-Included is a basic `Dockerfile` for building and distributing `SafeDNN`,
+Included is a basic `Dockerfile` for building and distributing `TrustDNN`,
 and can be built with the included `make` helper:
 
 ```
 $ make docker
 
-$ docker run -it safednn --help
+$ docker run -it trustdnn --help
 ```

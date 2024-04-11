@@ -2,11 +2,11 @@ import pandas as pd
 
 from pathlib import Path
 from cement import Controller, ex
-from safednn.core.evaluation import Evaluation
-from safednn.handlers.benchmark import BenchmarkPlugin
-from safednn.handlers.tool import ToolPlugin
-from safednn.core.exc import SafeDNNError
-from safednn.core.plotter import Plotter
+from trustdnn.core.evaluation import Evaluation
+from trustdnn.handlers.benchmark import BenchmarkPlugin
+from trustdnn.handlers.tool import ToolPlugin
+from trustdnn.core.exc import TrustDNNError
+from trustdnn.core.plotter import Plotter
 
 
 class Evaluate(Controller):
@@ -19,9 +19,9 @@ class Evaluate(Controller):
         description = 'Command for executing a tool on a benchmark.'
 
         # text displayed at the bottom of --help output
-        epilog = 'Usage: safednn evaluate -wd ~/workdir efficiency'
+        epilog = 'Usage: trustdnn evaluate -wd ~/workdir efficiency'
 
-        # controller level arguments. ex: 'safednn --version'
+        # controller level arguments. ex: 'trustdnn --version'
         arguments = [
             (['-wd', '--workdir'], {'help': 'Working directory', 'type': str, 'required': True})
         ]
@@ -73,7 +73,7 @@ class Evaluate(Controller):
         dataset = benchmark.get_dataset(dataset_name)
 
         if dataset is None:
-            raise SafeDNNError(f"Dataset {dataset_name} not found in benchmark {benchmark_name}")
+            raise TrustDNNError(f"Dataset {dataset_name} not found in benchmark {benchmark_name}")
 
         return dataset.test.labels
 
@@ -82,7 +82,7 @@ class Evaluate(Controller):
         model = benchmark.get_model(model_name)
 
         if model is None:
-            raise SafeDNNError(f"Model {model_name} not found in benchmark {benchmark}")
+            raise TrustDNNError(f"Model {model_name} not found in benchmark {benchmark}")
 
         return model.predictions
 

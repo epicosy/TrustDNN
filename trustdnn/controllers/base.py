@@ -14,9 +14,9 @@ class Base(Controller):
         description = 'A framework for evaluating tools that reason about the trustworthiness of DNNs.'
 
         # text displayed at the bottom of --help output
-        epilog = 'Usage: safednn command --option 1'
+        epilog = 'Usage: trustdnn command --option 1'
 
-        # controller level arguments. ex: 'safednn --version'
+        # controller level arguments. ex: 'trustdnn --version'
         arguments = [
             (['-v', '--version'], {'action': 'version', 'version': VERSION_BANNER}),
         ]

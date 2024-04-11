@@ -1,4 +1,4 @@
-# SafeDNN Change History
+# TrustDNN Change History
 
 ## 0.0.1
 

@@ -1,4 +1,4 @@
 
-class SafeDNNError(Exception):
+class TrustDNNError(Exception):
     """Generic errors."""
     pass

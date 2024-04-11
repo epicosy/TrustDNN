@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from pathlib import Path
-from safednn.core.dataset.base import Dataset
-from safednn.core.model import Model
+from trustdnn.core.dataset.base import Dataset
+from trustdnn.core.model import Model
 
 
 @dataclass

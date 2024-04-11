@@ -4,11 +4,11 @@ from typing import Dict
 from pathlib import Path
 from cement import Controller, ex
 
-from safednn.handlers.benchmark import BenchmarkPlugin
-from safednn.handlers.tool import ToolPlugin
-from safednn.core.objects import Execution, Instance
-from safednn.core.dataset import Dataset
-from safednn.core.model import Model
+from trustdnn.handlers.benchmark import BenchmarkPlugin
+from trustdnn.handlers.tool import ToolPlugin
+from trustdnn.core.objects import Execution, Instance
+from trustdnn.core.dataset import Dataset
+from trustdnn.core.model import Model
 
 
 class Execute(Controller):
@@ -21,9 +21,9 @@ class Execute(Controller):
         description = 'Command for executing a tool on a benchmark.'
 
         # text displayed at the bottom of --help output
-        epilog = 'Usage: safednn execute --tool prophecy --benchmark mnist --dataset mnist --model model1 analyze'
+        epilog = 'Usage: trustdnn execute --tool prophecy --benchmark mnist --dataset mnist --model model1 analyze'
 
-        # controller level arguments. ex: 'safednn --version'
+        # controller level arguments. ex: 'trustdnn --version'
         arguments = [
             (['-wd', '--workdir'], {'help': 'Working directory', 'type': str, 'required': False}),
             (['-b', '--benchmark'], {'help': 'Benchmark name', 'type': str, 'required': True}),

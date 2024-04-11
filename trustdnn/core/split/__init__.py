@@ -1,8 +1,8 @@
 from pathlib import Path
-from safednn.core.split.base import Split, SPLIT_NAMES
+from trustdnn.core.split.base import Split, SPLIT_NAMES
 
-from safednn.core.split.csv import CSVSplit
-from safednn.core.split.npy import NPYSplit
+from trustdnn.core.split.csv import CSVSplit
+from trustdnn.core.split.npy import NPYSplit
 
 
 SPLIT_FORMATS = {'csv': CSVSplit, 'npy': NPYSplit}

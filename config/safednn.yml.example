@@ -1,19 +1,19 @@
-### SafeDNN Configuration Settings
+### TrustDNN Configuration Settings
 ---
 
-safednn:
+trustdnn:
 
 ### Toggle application level debug (does not toggle framework debugging)
 # debug: false
 
 ### Where external (third-party) plugins are loaded from
-# plugin_dir: /var/lib/safednn/plugins/
+# plugin_dir: /var/lib/trustdnn/plugins/
 
 ### Where all plugin configurations are loaded from
-# plugin_config_dir: /etc/safednn/plugins.d/
+# plugin_config_dir: /etc/trustdnn/plugins.d/
 
 ### Where external templates are loaded from
-# template_dir: /var/lib/safednn/templates/
+# template_dir: /var/lib/trustdnn/templates/
 
 ### The log handler label
 # log_handler: colorlog

@@ -3,11 +3,11 @@ requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project.urls]
-repository = "https://github.com/epicosy/safednn"
-homepage = "https://github.com/epicosy/safednn"
+repository = "https://github.com/epicosy/trustdnn"
+homepage = "https://github.com/epicosy/trustdnn"
 
 [project]
-name="safednn"
+name="trustdnn"
 version = "0.0.1"
 description = "A framework for evaluating tools that reason about the trustworthiness of the DNN's predictions."
 readme = "README.md"
@@ -51,7 +51,7 @@ exclude = ["ez_setup", "tests*"]
 include-package-data = true
 
 [tool.setuptools.package-data]
-safednn = ["templates/*", "config/*"]
+trustdnn = ["templates/*", "config/*"]
 
 [project.scripts]
-safednn = "safednn.main:main"
+trustdnn = "trustdnn.main:main"

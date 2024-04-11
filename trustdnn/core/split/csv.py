@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from safednn.core.split import Split
+from trustdnn.core.split import Split
 
 
 class CSVSplit(Split):

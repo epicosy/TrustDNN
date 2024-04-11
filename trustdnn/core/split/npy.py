@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from safednn.core.split.base import Split
+from trustdnn.core.split.base import Split
 
 
 class NPYSplit(Split):

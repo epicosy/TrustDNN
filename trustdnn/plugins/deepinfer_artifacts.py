@@ -1,4 +1,4 @@
-from safednn.handlers.benchmark import BenchmarkPlugin
+from trustdnn.handlers.benchmark import BenchmarkPlugin
 
 
 class DeepInferArtifacts(BenchmarkPlugin):

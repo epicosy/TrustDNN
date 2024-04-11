@@ -5,9 +5,9 @@ import pandas as pd
 
 from pathlib import Path
 
-from safednn.handlers.tool import ToolPlugin
-from safednn.core.dataset.base import Dataset
-from safednn.core.model import Model
+from trustdnn.handlers.tool import ToolPlugin
+from trustdnn.core.dataset.base import Dataset
+from trustdnn.core.model import Model
 
 
 class SelfChecker(ToolPlugin):

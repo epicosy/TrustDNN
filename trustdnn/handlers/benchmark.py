@@ -2,9 +2,9 @@ from abc import abstractmethod
 from typing import Any, List, Union, Dict
 from pathlib import Path
 
-from safednn.handlers.plugin import PluginHandler
-from safednn.core.dataset import Dataset
-from safednn.core.model import Model
+from trustdnn.handlers.plugin import PluginHandler
+from trustdnn.core.dataset import Dataset
+from trustdnn.core.model import Model
 
 
 class BenchmarkPlugin(PluginHandler):

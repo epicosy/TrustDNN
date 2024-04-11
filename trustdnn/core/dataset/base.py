@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import Dict
 
-from safednn.core.split import SplitFactory
-from safednn.core.split.base import Split
+from trustdnn.core.split import SplitFactory
+from trustdnn.core.split.base import Split
 
 
 class Dataset:

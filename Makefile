@@ -10,7 +10,7 @@ install-dev:
 	pip install -e .[dev]
 
 virtualenv:
-	virtualenv --prompt '|> safednn <| ' env
+	virtualenv --prompt '|> trustdnn <| ' env
 	$(MAKE) install-dev
 	@echo
 	@echo "VirtualENV Setup Complete. Now run: source env/bin/activate"
@@ -19,13 +19,13 @@ virtualenv:
 test:
 	python -m pytest \
 		-v \
-		--cov=safednn \
+		--cov=trustdnn \
 		--cov-report=term \
 		--cov-report=html:coverage-report \
 		tests/
 
 docker: clean
-	docker build -t safednn:latest .
+	docker build -t trustdnn:latest .
 
 dist: clean
 	rm -rf dist/*

@@ -9,8 +9,8 @@ from typing import Callable, Union
 from datetime import datetime, timezone
 from statistics import median, mean
 
-from safednn.core.objects import Execution, Instance
-from safednn.core.interfaces import HandlersInterface
+from trustdnn.core.objects import Execution, Instance
+from trustdnn.core.interfaces import HandlersInterface
 
 
 def monitor_process(process, stdout_file, stderr_file, stdout_callback=None, stderr_callback=None):

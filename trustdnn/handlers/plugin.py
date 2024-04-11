@@ -1,5 +1,5 @@
 from cement import Handler
-from safednn.core.interfaces import PluginsInterface
+from trustdnn.core.interfaces import PluginsInterface
 
 
 class PluginHandler(PluginsInterface, Handler):

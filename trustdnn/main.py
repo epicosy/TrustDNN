@@ -2,27 +2,27 @@
 from pathlib import Path
 from cement import App, TestApp, init_defaults
 from cement.core.exc import CaughtSignal, InterfaceError
-from .core.exc import SafeDNNError
+from .core.exc import TrustDNNError
 from .controllers.base import Base
 from .controllers.execute import Execute
 from .controllers.evaluate import Evaluate
 
-from safednn.core.interfaces import PluginsInterface, HandlersInterface
-from safednn.handlers.instance import InstanceHandler
+from trustdnn.core.interfaces import PluginsInterface, HandlersInterface
+from trustdnn.handlers.instance import InstanceHandler
 
-from safednn.handlers.tool import ToolPlugin
-from safednn.handlers.benchmark import BenchmarkPlugin
+from trustdnn.handlers.tool import ToolPlugin
+from trustdnn.handlers.benchmark import BenchmarkPlugin
 
 
 # configuration defaults
-CONFIG = init_defaults('safednn')
+CONFIG = init_defaults('trustdnn')
 
 
-class SafeDNN(App):
-    """SafeDNN primary application."""
+class TrustDNN(App):
+    """TrustDNN primary application."""
 
     class Meta:
-        label = 'safednn'
+        label = 'trustdnn'
 
         # configuration defaults
         config_defaults = CONFIG
@@ -117,19 +117,19 @@ class SafeDNN(App):
         import os
         import json
 
-        safednn_dir = os.environ.get('SAFEDNN_DIR', None)
+        trustdnn_dir = os.environ.get('TRUSTDNN_DIR', None)
 
-        if safednn_dir is None:
-            self.log.error('SAFEDNN_DIR not set')
+        if trustdnn_dir is None:
+            self.log.error('TRUSTDNN_DIR not set')
             exit(1)
 
-        safednn_config_path = Path(safednn_dir) / 'config'
+        trustdnn_config_path = Path(trustdnn_dir) / 'config'
 
-        if not safednn_config_path.exists():
-            self.log.error(f'Config path {safednn_config_path} not found')
+        if not trustdnn_config_path.exists():
+            self.log.error(f'Config path {trustdnn_config_path} not found')
             exit(1)
 
-        tools_config_path = safednn_config_path / 'tools'
+        tools_config_path = trustdnn_config_path / 'tools'
 
         if not tools_config_path.exists():
             self.log.error(f'Tools config path {tools_config_path} not found')
@@ -143,7 +143,7 @@ class SafeDNN(App):
                 with tool_config_path.open() as f:
                     self.config.set('tools', tool_config_path.stem, json.load(f))
 
-        benchmarks_config_path = safednn_config_path / 'benchmarks'
+        benchmarks_config_path = trustdnn_config_path / 'benchmarks'
 
         if not benchmarks_config_path.exists():
             self.log.error(f'Benchmarks config path {benchmarks_config_path} not found')
@@ -158,15 +158,15 @@ class SafeDNN(App):
                     self.config.set('benchmarks', benchmark_config_path.stem, json.load(f))
 
 
-class SafeDNNTest(TestApp, SafeDNN):
-    """A sub-class of SafeDNN that is better suited for testing."""
+class TrustDNNTest(TestApp, TrustDNN):
+    """A sub-class of TrustDNN that is better suited for testing."""
 
     class Meta:
-        label = 'safednn'
+        label = 'trustdnn'
 
 
 def main():
-    with SafeDNN() as app:
+    with TrustDNN() as app:
         try:
             app.load_configs()
             app.run()
@@ -179,8 +179,8 @@ def main():
                 import traceback
                 traceback.print_exc()
 
-        except SafeDNNError as e:
-            print('SafeDNNError > %s' % e.args[0])
+        except TrustDNNError as e:
+            print('TrustDNNError > %s' % e.args[0])
             app.exit_code = 1
 
             if app.debug is True:

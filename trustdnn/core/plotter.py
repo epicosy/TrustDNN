@@ -101,7 +101,7 @@ class Plotter:
         pivot_data = data.pivot_table(index=[x, hue], columns=stack, values=y)
 
         # Plot the stacked bar plot
-        p = pivot_data.plot.bar(stacked=True, ax=ax, log=True)
+        p = pivot_data.plot.bar(stacked=True, ax=ax, logy=True)
 
         # Annotate each bar with its rounded numerical value
         #for idx, label in enumerate(list(pivot_data.index)):
