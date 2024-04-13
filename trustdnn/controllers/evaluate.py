@@ -16,7 +16,7 @@ class Evaluate(Controller):
         stacked_type = 'nested'
 
         # text displayed at the top of --help output
-        description = 'Command for executing a tool on a benchmark.'
+        description = 'Command for evaluating a tool\'s executions and outputs.'
 
         # text displayed at the bottom of --help output
         epilog = 'Usage: trustdnn evaluate -wd ~/workdir efficiency'
